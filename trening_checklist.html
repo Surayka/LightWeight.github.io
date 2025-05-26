@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tréning & Strava Checklist</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f6f9fc; margin: 0; padding: 20px; }
+    h1, h2 { text-align: center; }
+    .tabs { display: flex; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+    .tab { padding: 10px 20px; background: #ddd; border-radius: 20px; cursor: pointer; }
+    .tab.active { background: #4CAF50; color: white; }
+    .week { display: none; }
+    .week.active { display: block; }
+    .day { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; }
+    textarea { width: 100%; height: 50px; margin-top: 10px; }
+    input[type="checkbox"] { margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Tvoj 4-týždňový plán</h1>
+  <div class="tabs">
+    <div class="tab active" onclick="showWeek(1)">Týždeň 1</div>
+    <div class="tab" onclick="showWeek(2)">Týždeň 2</div>
+    <div class="tab" onclick="showWeek(3)">Týždeň 3</div>
+    <div class="tab" onclick="showWeek(4)">Týždeň 4</div>
+  </div>
+  <div id="weeks">
+    <!-- Dynamický obsah 4 týždňov -->
+  </div>
+
+<script>
+const plan = {
+  "Pondelok": ["Hip Thrust – 4x12", "Leg Press – 3x12", "Glute bridge – 2x15", "Výpady – 3x10/str", "Stretching"],
+  "Utorok": ["Plank – 3x30s", "Bird dog – 3x10", "Strečing krčnej chrbtice", "Dýchanie – 5 min"],
+  "Streda": ["Lat pulldown – 3x12", "TRX row – 3x10", "Face pulls – 3x15", "Činky na ramená – 3x12"],
+  "Štvrtok": ["Orbitrek – 20 min", "Plank + rotácie", "Bicyklovanie alebo chôdza – 30 min"],
+  "Piatok": ["Goblet drep – 3x15", "Kettlebell swing – 3x20", "Push-up (kolená) – 3x10", "Core tréning"],
+  "Sobota": ["Mobilita celého tela", "Prechádzka – 45 min", "Krčný strečing"],
+  "Nedeľa": ["Voľno alebo ľahké naťahovanie", "Dýchanie + relax"]
+};
+const food = [
+  "Raňajky: Koktejl + vločky + ovocie + orechy",
+  "Desiata: Cottage / jogurt + ovocie",
+  "Obed: Mäso alebo tofu + zelenina + ryža/tortilla",
+  "Olovrant: Shake alebo chlieb + tuniak",
+  "Večera: Vajcia, cottage, tvaroh, špenát",
+  "Pred spaním: Tvaroh / proteín"
+];
+
+const weeksDiv = document.getElementById("weeks");
+for (let w = 1; w <= 4; w++) {
+  const week = document.createElement("div");
+  week.className = "week" + (w === 1 ? " active" : "");
+  for (let day in plan) {
+    const div = document.createElement("div");
+    div.className = "day";
+    div.innerHTML = `<h3>${day}</h3>` +
+      plan[day].map((item, i) => `<label><input type="checkbox" id="w${w}_${day}_t${i}"> ${item}</label>`).join("") +
+      "<h4>Strava</h4>" +
+      food.map((f, j) => `<label><input type="checkbox" id="w${w}_${day}_f${j}"> ${f}</label>`).join("") +
+      `<textarea placeholder="Poznámky" id="w${w}_${day}_note"></textarea>`;
+    week.appendChild(div);
+  }
+  weeksDiv.appendChild(week);
+}
+
+// Prepínanie týždňov
+function showWeek(n) {
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === n - 1));
+  document.querySelectorAll('.week').forEach((w, i) => w.classList.toggle('active', i === n - 1));
+}
+
+// Ukladanie stavu
+function saveState() {
+  document.querySelectorAll("input[type=checkbox], textarea").forEach(el => {
+    const id = el.id;
+    if (id) localStorage.setItem(id, el.type === "checkbox" ? el.checked : el.value);
+  });
+}
+function loadState() {
+  document.querySelectorAll("input[type=checkbox], textarea").forEach(el => {
+    const id = el.id;
+    if (id && localStorage.getItem(id) !== null) {
+      if (el.type === "checkbox") el.checked = localStorage.getItem(id) === "true";
+      else el.value = localStorage.getItem(id);
+    }
+  });
+}
+window.onload = loadState;
+window.onchange = saveState;
+</script>
+</body>
+</html>
